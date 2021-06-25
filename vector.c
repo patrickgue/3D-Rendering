@@ -89,7 +89,7 @@ vec3 vecd3_to_vec3(vecd3 v)
 
 bool find_intersection(vec3_ray ray, poly polygon, vec3 *answer)
 {
-    const float EPSILON = 0.0000001;
+    const float EPSILON = 0.0001;
 
     vec3 rayOrigin = ray.r1;
     vec3 rayVector = ray.r2;

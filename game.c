@@ -28,12 +28,22 @@ int main(int argc, char **argv)
     bool res;
     time_t last_sec = 0;
     char character[64],debug[128];
+    bool debug_mode = false;
 
     float d_max = 10.0f, d_min = 3.0f, f_near = 0.01f, f_far = 0.1f, fx, fy; 
     struct mfb_window *window = mfb_open_ex("my display", WIDTH, HEIGHT, WF_RESIZABLE);
     if (!window)
 	return 0;
 
+    if (argc > 1)
+    {
+	if (strcmp(argv[1], "-d") == 0)
+	{
+	    debug_mode = true;
+	}
+    }
+
+    
     mfb_set_keyboard_callback(window, keyboard);
     memset(keyboard_buffer, 0, 0x60);
 
@@ -80,7 +90,7 @@ int main(int argc, char **argv)
 					   (vec3) {0.0f,0.0f,d_min}),
 				       (vec3) {f_near * (x - (WIDTH/2)), 0, 0}
 				       ), camera.yaw);
-		c1.y = (f_near * (y - (HEIGHT/2)));
+		c1.y = (f_near * -1 * (y - (HEIGHT/2)));
 		
 		c2 = vec3_rotate_y(vecd3_to_vec3(camera), vec3_add(
 				       vec3_add(
@@ -88,7 +98,7 @@ int main(int argc, char **argv)
 					   (vec3) {0.0f,0.0f,d_max}),
 				       (vec3) {f_far * (x - (WIDTH/2)), 0, 0}
 				       ), camera.yaw);
-		c2.y = (f_far * (y - (HEIGHT/2)));
+		c2.y = (f_far * -1 * (y - (HEIGHT/2)));
 		
 		camera_ray = (vec3_ray) {c1, c2};
 		buffer[(y * WIDTH) + x] = 0;
@@ -113,82 +123,89 @@ int main(int argc, char **argv)
 		}
 		
 		/*if (res)
-		{
-		    printf("[%03d/%03d] %f:%f:%f\n", x,y, answ.x, answ.y, answ.z);
-		    }*/
+		  {
+		  printf("[%03d/%03d] %f:%f:%f\n", x,y, answ.x, answ.y, answ.z);
+		  }*/
 	    }
 	}
 
-	sprintf(debug, "FPS: %d X: %2.1f Y: %2.1f Z: %2.1f YAW: %2.1f", fps, camera.x, camera.y, camera.z, camera.yaw);
-	frames++;
-	if (last_sec < time(NULL))
+	if (debug_mode)
 	{
-	    last_sec = time(NULL);
-	    fps = frames;
-	    frames = 0;
-	}
 
-	for (i = 0; i < strlen(debug); i++)
-	{
-	    font_char(character, debug[i]);
-	    for (x = 0; x < 8; x++)
+	    sprintf(debug, "FPS: %d X: %2.1f Y: %2.1f Z: %2.1f YAW: %2.1f", fps, camera.x, camera.y, camera.z, camera.yaw);
+	    frames++;
+	    if (last_sec < time(NULL))
 	    {
-		for(y = 0; y < 8; y++)
+		last_sec = time(NULL);
+		fps = frames;
+		frames = 0;
+	    }
+
+	    for (i = 0; i < strlen(debug); i++)
+	    {
+		font_char(character, debug[i]);
+		for (x = 0; x < 8; x++)
 		{
-		    if (character[(y * 8) + x] == 1)
+		    for(y = 0; y < 8; y++)
 		    {
-			buffer[(y * WIDTH) + x + (i*8)] = 0xffffffff;
+			if (character[(y * 8) + x] == 1)
+			{
+			    buffer[(y * WIDTH) + x + (i*8)] = 0xffffffff;
+			}
 		    }
 		}
 	    }
-	}
 
-	for (x = 10; x < 70; x++)
-	{
-	    for (y = 10; y < 70; y++)
+
+
+	    for (x = 10; x < 70; x++)
 	    {
-		if (x != 40 && y != 40) {
-		    buffer[(y * WIDTH) + x] = 0xffffffff;
+		for (y = 10; y < 70; y++)
+		{
+		    if (x != 40 && y != 40) {
+			buffer[(y * WIDTH) + x] = 0xffffffff;
+		    }
 		}
 	    }
-	}
 
-	buffer[((((int)camera.z) + 40) * WIDTH) + ((int)camera.x) + 40] = 0x00ff0000;
+	    buffer[((((int)camera.z) + 40) * WIDTH) + ((int)camera.x) + 40] = 0x00ff0000;
 
 
-	buffer[((((int)d1.r1.z) + 40) * WIDTH) + ((int)d1.r1.x) + 40] = 0x000000ff;
-	buffer[((((int)d1.r1.z) + 40) * WIDTH) + ((int)d1.r1.x) + 40] = 0x000000ff;
-	buffer[((((int)d1.r1.z) + 40) * WIDTH) + ((int)d1.r1.x) + 40] = 0x000000ff;
-	buffer[((((int)d2.r1.z) + 40) * WIDTH) + ((int)d2.r1.x) + 40] = 0x000000ff;
-	buffer[((((int)d2.r1.z) + 40) * WIDTH) + ((int)d2.r1.x) + 40] = 0x000000ff;
-	buffer[((((int)d2.r1.z) + 40) * WIDTH) + ((int)d2.r1.x) + 40] = 0x000000ff;
-	buffer[((((int)d3.r1.z) + 40) * WIDTH) + ((int)d3.r1.x) + 40] = 0x000000ff;
-	buffer[((((int)d3.r1.z) + 40) * WIDTH) + ((int)d3.r1.x) + 40] = 0x000000ff;
-	buffer[((((int)d3.r1.z) + 40) * WIDTH) + ((int)d3.r1.x) + 40] = 0x000000ff;
+	    buffer[((((int)d1.r1.z) + 40) * WIDTH) + ((int)d1.r1.x) + 40] = 0x000000ff;
+	    buffer[((((int)d1.r1.z) + 40) * WIDTH) + ((int)d1.r1.x) + 40] = 0x000000ff;
+	    buffer[((((int)d1.r1.z) + 40) * WIDTH) + ((int)d1.r1.x) + 40] = 0x000000ff;
+	    buffer[((((int)d2.r1.z) + 40) * WIDTH) + ((int)d2.r1.x) + 40] = 0x000000ff;
+	    buffer[((((int)d2.r1.z) + 40) * WIDTH) + ((int)d2.r1.x) + 40] = 0x000000ff;
+	    buffer[((((int)d2.r1.z) + 40) * WIDTH) + ((int)d2.r1.x) + 40] = 0x000000ff;
+	    buffer[((((int)d3.r1.z) + 40) * WIDTH) + ((int)d3.r1.x) + 40] = 0x000000ff;
+	    buffer[((((int)d3.r1.z) + 40) * WIDTH) + ((int)d3.r1.x) + 40] = 0x000000ff;
+	    buffer[((((int)d3.r1.z) + 40) * WIDTH) + ((int)d3.r1.x) + 40] = 0x000000ff;
 
-	buffer[((((int)d1.r2.z) + 40) * WIDTH) + ((int)d1.r2.x) + 40] = 0x000000ff;
-	buffer[((((int)d1.r2.z) + 40) * WIDTH) + ((int)d1.r2.x) + 40] = 0x000000ff;
-	buffer[((((int)d1.r2.z) + 40) * WIDTH) + ((int)d1.r2.x) + 40] = 0x000000ff;
-	buffer[((((int)d2.r2.z) + 40) * WIDTH) + ((int)d2.r2.x) + 40] = 0x000000ff;
-	buffer[((((int)d2.r2.z) + 40) * WIDTH) + ((int)d2.r2.x) + 40] = 0x000000ff;
-	buffer[((((int)d2.r2.z) + 40) * WIDTH) + ((int)d2.r2.x) + 40] = 0x000000ff;
-	buffer[((((int)d3.r2.z) + 40) * WIDTH) + ((int)d3.r2.x) + 40] = 0x000000ff;
-	buffer[((((int)d3.r2.z) + 40) * WIDTH) + ((int)d3.r2.x) + 40] = 0x000000ff;
-	buffer[((((int)d3.r2.z) + 40) * WIDTH) + ((int)d3.r2.x) + 40] = 0x000000ff;
+	    buffer[((((int)d1.r2.z) + 40) * WIDTH) + ((int)d1.r2.x) + 40] = 0x000000ff;
+	    buffer[((((int)d1.r2.z) + 40) * WIDTH) + ((int)d1.r2.x) + 40] = 0x000000ff;
+	    buffer[((((int)d1.r2.z) + 40) * WIDTH) + ((int)d1.r2.x) + 40] = 0x000000ff;
+	    buffer[((((int)d2.r2.z) + 40) * WIDTH) + ((int)d2.r2.x) + 40] = 0x000000ff;
+	    buffer[((((int)d2.r2.z) + 40) * WIDTH) + ((int)d2.r2.x) + 40] = 0x000000ff;
+	    buffer[((((int)d2.r2.z) + 40) * WIDTH) + ((int)d2.r2.x) + 40] = 0x000000ff;
+	    buffer[((((int)d3.r2.z) + 40) * WIDTH) + ((int)d3.r2.x) + 40] = 0x000000ff;
+	    buffer[((((int)d3.r2.z) + 40) * WIDTH) + ((int)d3.r2.x) + 40] = 0x000000ff;
+	    buffer[((((int)d3.r2.z) + 40) * WIDTH) + ((int)d3.r2.x) + 40] = 0x000000ff;
 
-	for (i = 0; i < poly_set_len; i++)
-	{
-	    buffer[((((int)poly_set[i].a.z) + 40) * WIDTH) + ((int)poly_set[i].a.x) + 40] = 0x0000ff00;
-	    buffer[((((int)poly_set[i].a.z) + 40) * WIDTH) + ((int)poly_set[i].a.x) + 40] = 0x0000ff00;
-	    buffer[((((int)poly_set[i].a.z) + 40) * WIDTH) + ((int)poly_set[i].a.x) + 40] = 0x0000ff00;
+	    for (i = 0; i < poly_set_len; i++)
+	    {
+		buffer[((((int)poly_set[i].a.z) + 40) * WIDTH) + ((int)poly_set[i].a.x) + 40] = 0x0000ff00;
+		buffer[((((int)poly_set[i].a.z) + 40) * WIDTH) + ((int)poly_set[i].a.x) + 40] = 0x0000ff00;
+		buffer[((((int)poly_set[i].a.z) + 40) * WIDTH) + ((int)poly_set[i].a.x) + 40] = 0x0000ff00;
 
-	    buffer[((((int)poly_set[i].b.z) + 40) * WIDTH) + ((int)poly_set[i].b.x) + 40] = 0x0000ff00;
-	    buffer[((((int)poly_set[i].b.z) + 40) * WIDTH) + ((int)poly_set[i].b.x) + 40] = 0x0000ff00;
-	    buffer[((((int)poly_set[i].b.z) + 40) * WIDTH) + ((int)poly_set[i].b.x) + 40] = 0x0000ff00;
+		buffer[((((int)poly_set[i].b.z) + 40) * WIDTH) + ((int)poly_set[i].b.x) + 40] = 0x0000ff00;
+		buffer[((((int)poly_set[i].b.z) + 40) * WIDTH) + ((int)poly_set[i].b.x) + 40] = 0x0000ff00;
+		buffer[((((int)poly_set[i].b.z) + 40) * WIDTH) + ((int)poly_set[i].b.x) + 40] = 0x0000ff00;
 
-	    buffer[((((int)poly_set[i].c.z) + 40) * WIDTH) + ((int)poly_set[i].c.x) + 40] = 0x0000ff00;
-	    buffer[((((int)poly_set[i].c.z) + 40) * WIDTH) + ((int)poly_set[i].c.x) + 40] = 0x0000ff00;
-	    buffer[((((int)poly_set[i].c.z) + 40) * WIDTH) + ((int)poly_set[i].c.x) + 40] = 0x0000ff00;
+		buffer[((((int)poly_set[i].c.z) + 40) * WIDTH) + ((int)poly_set[i].c.x) + 40] = 0x0000ff00;
+		buffer[((((int)poly_set[i].c.z) + 40) * WIDTH) + ((int)poly_set[i].c.x) + 40] = 0x0000ff00;
+		buffer[((((int)poly_set[i].c.z) + 40) * WIDTH) + ((int)poly_set[i].c.x) + 40] = 0x0000ff00;
+	    }
+
 	}
 
 	
@@ -204,7 +221,7 @@ int main(int argc, char **argv)
     return 0;
 }
 
-void  process_input()
+void process_input()
 {
     if (keyboard_buffer['Q' - 0x20] == true)
     {
@@ -229,12 +246,12 @@ void  process_input()
     if (keyboard_buffer['A' - 0x20] == true)
     {
 	camera.x -= cosf(camera.yaw * DTOR)/4.0f;
-	camera.z += sinf(camera.yaw * DTOR)/4.0f;
+	camera.z -= sinf(camera.yaw * DTOR)/4.0f;
     }
     else if (keyboard_buffer['D' - 0x20] == true)
     {
 	camera.x += cosf(camera.yaw * DTOR)/4.0f;
-	camera.z -= sinf(camera.yaw * DTOR)/4.0f;
+	camera.z += sinf(camera.yaw * DTOR)/4.0f;
     }
 }
 
@@ -248,10 +265,5 @@ void keyboard(struct mfb_window *window, mfb_key key, mfb_key_mod mod, bool isPr
         mfb_close(window);
     }
 
-
     keyboard_buffer[key - 0x20] = isPressed;
-    
-
-    printf("%d %02x %d\n",key, key - 0x20, keyboard_buffer[key - 0x20]);
-
 }
