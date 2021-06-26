@@ -1,2 +1,7 @@
 *.o
 game
+
+util/*.o
+util/model
+
+assets/*.bin

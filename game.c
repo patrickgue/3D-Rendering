@@ -30,7 +30,7 @@ int main(int argc, char **argv)
     char character[64],debug[128];
     bool debug_mode = false;
 
-    float d_max = 10.0f, d_min = 3.0f, f_near = 0.01f, f_far = 0.1f, fx, fy; 
+    float d_max = 30.0f, d_min = 3.0f, f_near = 0.01f, f_far = 0.1f, fx, fy; 
     struct mfb_window *window = mfb_open_ex("my display", WIDTH, HEIGHT, WF_RESIZABLE);
     if (!window)
 	return 0;

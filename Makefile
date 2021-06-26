@@ -15,7 +15,11 @@ $(PROG):$(OBJS)
 
 clean:
 	rm -f $(OBJS) $(PROG)
+	make -C util/ clean
 
 
 test:$(PROG)
-	./$(PROG)
+	./$(PROG) -d
+
+model:
+	make -C util/ model
