@@ -3,7 +3,7 @@ DYI 3D Rendering
 
 Using simple trigonometry and vector calculations to render a 3d World
 
-![screenshot][doc/screenshot.png]
+![screenshot](doc/screenshot.png)
 
 
 
