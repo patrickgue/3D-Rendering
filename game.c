@@ -16,7 +16,7 @@
 
 uint32_t *buffer;
 poly *poly_set;
-int poly_set_len = 3;
+int poly_set_len = 0;
 vecd3 camera = {0.0f,0.0f,0.0f,0.0f,0.0f,0.0f};
 bool keyboard_buffer[0x60];
 
@@ -48,29 +48,11 @@ int main(int argc, char **argv)
     memset(keyboard_buffer, 0, 0x60);
 
     buffer = (uint32_t *) malloc(WIDTH * HEIGHT * 4);
-    poly_set = (poly*) malloc(sizeof(poly) * 12);
+    poly_set = (poly*) malloc(0);
 
-    poly_set[2] = (poly) {
-	{00.0f,00.0f,10.0f},
-	{01.0f,00.0f,10.0f},
-	{01.0f,01.0f,10.0f},
-	0x00ff0000
-    };
-
-    poly_set[1] = (poly) {
-	{01.0f,01.0f,10.0f},
-	{00.0f,01.0f,10.0f},
-	{00.0f,00.0f,10.0f},
-	0x0000ff00
-    };
-
-    poly_set[0] = (poly) {
-	{-5.0f,-1.0f,15.0f},
-	{ 5.0f,-1.0f,15.0f},
-	{ 0.0f, 5.0f,15.0f},
-	0x000000ff
-    };
-
+    load_model("assets/square.bin", &poly_set, &poly_set_len);
+    load_model("assets/plane.bin", &poly_set, &poly_set_len);
+    load_model("assets/cube.bin", &poly_set, &poly_set_len);
   
     do
     {
@@ -266,4 +248,22 @@ void keyboard(struct mfb_window *window, mfb_key key, mfb_key_mod mod, bool isPr
     }
 
     keyboard_buffer[key - 0x20] = isPressed;
+}
+
+
+void load_model(char *filename, poly **poly_set, int *poly_set_len)
+{
+    FILE *file = fopen(filename, "r");
+    int add_len;
+    if (file == NULL)
+    {
+	fprintf(stderr, "Unable to load model file %s\n", filename);
+	exit(1);
+    }
+    fread(&add_len, 1, sizeof(int), file);
+    *poly_set = realloc(*poly_set, sizeof(poly) * (*poly_set_len + add_len + 1));
+    fread(*poly_set + *poly_set_len, add_len, sizeof(poly) * add_len, file);
+    *poly_set_len += add_len;
+    
+    fclose(file);
 }
