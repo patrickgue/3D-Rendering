@@ -3,8 +3,8 @@ SRCS=game.c vector.c text.c
 OBJS=$(SRCS:.c=.o)
 MODELS=assets/square.bin assets/plane.bin assets/cube.bin
 
-CFLAGS+=-g -I/Users/patrick/Development/third/minifb/include
-LDFLAGS+=-L/Users/patrick/Development/third/minifb/build -lminifb -ObjC -lObjC -framework Cocoa  -framework Metal -framework MetalKit
+CFLAGS+=-g -I./vendor/minifb/include
+LDFLAGS+=-L./vendor/minifb/build -lminifb -ObjC -lObjC -framework Cocoa  -framework Metal -framework MetalKit
 
 all:$(PROG)
 

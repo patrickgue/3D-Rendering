@@ -5,3 +5,4 @@ util/*.o
 util/model
 
 assets/*.bin
+vendor
