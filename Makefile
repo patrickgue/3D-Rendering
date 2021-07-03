@@ -4,12 +4,21 @@ OBJS=$(SRCS:.c=.o)
 MODELS=assets/square.bin assets/plane.bin assets/cube.bin
 
 CFLAGS+=-g -I./vendor/minifb/include
+
+UNAME := $(shell uname)
+
+ifeq ($(UNAME), Linux)
+LDFLAGS+=-L./vendor/minifb/build -lminifb -lX11 -lGL
+endif
+ifeq ($(UNAME), Darwin)
 LDFLAGS+=-L./vendor/minifb/build -lminifb -ObjC -lObjC -framework Cocoa  -framework Metal -framework MetalKit
+endif
+
 
 all:$(PROG)
 
 $(PROG):$(OBJS) models editor
-	c++ $(LDFLAGS) $(OBJS) -o $@
+	c++ $(OBJS) $(LDFLAGS) -o $@
 
 %.o:%.c
 	cc $(CFLAGS) -c $^ -o $@ 
