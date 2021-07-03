@@ -32,6 +32,7 @@ struct s_polygon
 {
     vec3 a, b, c;
     uint32_t color;
+    bool render;
 };
 
 
@@ -45,6 +46,9 @@ vec3 vec3_div(vec3,vec3);
 float vec3_len(vec3);
 vec3 vec3_rotate_y(vec3 c, vec3 v, float deg);
 vec3 vecd3_to_vec3(vecd3 v);
+vec3 poly_center(poly);
+vec3 vec3_abs(vec3);
+float vec3_distance(vec3, vec3);
 
 bool find_intersection(vec3_ray, poly, vec3 *);
 

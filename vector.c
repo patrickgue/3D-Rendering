@@ -61,6 +61,29 @@ vec3 vec3_mul_scalar(float a, vec3 B)
     return (vec3) {a*B.x, a*B.y, a*B.z};
 }
 
+vec3 vec3_abs(vec3 v)
+{
+    return (vec3) {
+	fabs(v.x),
+	fabs(v.y),
+	fabs(v.z)
+    };
+}
+
+float vec3_distance(vec3 a, vec3 b)
+{
+    return vec3_len(vec3_sub(a,b));
+}
+
+vec3 poly_center(poly polygon)
+{
+    return (vec3) {
+	(polygon.a.x + polygon.b.x + polygon.c.x) / 3.0f,
+	(polygon.a.y + polygon.b.y + polygon.c.y) / 3.0f,
+	(polygon.a.z + polygon.b.z + polygon.c.z) / 3.0f
+    };
+}
+
 vec3 vec3_rotate_y(vec3 vc, vec3 v, float deg)
 {
     vec3 p;

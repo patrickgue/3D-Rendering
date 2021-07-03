@@ -1,5 +1,5 @@
 PROG=game
-SRCS=game.c vector.c text.c
+SRCS=game.c vector.c text.c model.c
 OBJS=$(SRCS:.c=.o)
 MODELS=assets/square.bin assets/plane.bin assets/cube.bin
 
@@ -8,7 +8,7 @@ LDFLAGS+=-L./vendor/minifb/build -lminifb -ObjC -lObjC -framework Cocoa  -framew
 
 all:$(PROG)
 
-$(PROG):$(OBJS) models
+$(PROG):$(OBJS) models editor
 	c++ $(LDFLAGS) $(OBJS) -o $@
 
 %.o:%.c
@@ -20,6 +20,8 @@ clean:
 
 models: model $(MODELS)
 
+
+
 %.bin:%.mdl 
 	./util/model $^ $@
 
@@ -29,3 +31,6 @@ test:$(PROG)
 
 model:
 	make -C util/ model
+
+editor:
+	make -C util/ editor

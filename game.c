@@ -9,6 +9,7 @@
 
 #include "vector.h"
 #include "text.h"
+#include "model.h"
 #include "game.h"
 
 #define WIDTH 320
@@ -17,18 +18,20 @@
 uint32_t *buffer;
 poly *poly_set;
 int poly_set_len = 0;
+float *poly_set_dist_list;
 vecd3 camera = {0.0f,0.0f,0.0f,0.0f,0.0f,0.0f};
-bool keyboard_buffer[0x60];
+bool keyboard_buffer[0x60], last_moved = true;
 
 int main(int argc, char **argv)
 {
-    int x, y, i, frames = 0, fps = 0;
+    int x, y, i, frames = 0, fps = 0, state, n;
     vec3 answ, c1, c2, c1r, c2r;
     vec3_ray camera_ray, d1, d2, d3;
-    bool res;
+    float tmp_dist;
     time_t last_sec = 0;
     char character[64],debug[128];
-    bool debug_mode = false;
+    bool debug_mode = false, swapped, res;
+    poly tmp;
 
     float d_max = 30.0f, d_min = 3.0f, f_near = 0.01f, f_far = 0.1f, fx, fy; 
     struct mfb_window *window = mfb_open_ex("my display", WIDTH, HEIGHT, WF_RESIZABLE);
@@ -50,14 +53,45 @@ int main(int argc, char **argv)
     buffer = (uint32_t *) malloc(WIDTH * HEIGHT * 4);
     poly_set = (poly*) malloc(0);
 
+
     load_model("assets/square.bin", &poly_set, &poly_set_len);
     load_model("assets/plane.bin", &poly_set, &poly_set_len);
     load_model("assets/cube.bin", &poly_set, &poly_set_len);
+
+    poly_set_dist_list = malloc(sizeof(float) * poly_set_len);
   
     do
     {
-	int state;
 
+	if (last_moved)
+	{
+	    for (i = 0; i < poly_set_len; i++)
+	    {
+		poly_set_dist_list[i] = vec3_distance(vecd3_to_vec3(camera), poly_center(poly_set[i]));
+	    }
+	    
+	    n = poly_set_len;
+	    do
+	    {
+		swapped = false;
+		for (i = 1; i <  n - 1; i++)
+		{
+		    if (poly_set_dist_list[i - 1] > poly_set_dist_list[i])
+		    {
+			tmp = poly_set[i - 1];
+			tmp_dist = poly_set_dist_list[i - 1];
+			poly_set[i - 1] = poly_set[i];
+			poly_set_dist_list[i - 1] = poly_set_dist_list[i];
+			poly_set[i] = tmp;
+			poly_set_dist_list[i] = tmp_dist;
+			swapped = true;
+		    }
+		}
+		n--;
+	    } while(!swapped && n >= 0);
+	    last_moved = false;
+	}
+	
 	for (x = 0; x < WIDTH; x++)
 	{
 	    for (y = 0; y < HEIGHT; y++)
@@ -85,7 +119,7 @@ int main(int argc, char **argv)
 		camera_ray = (vec3_ray) {c1, c2};
 		buffer[(y * WIDTH) + x] = 0;
 	      
-		for (i = 0; i < poly_set_len; i++)
+		for (i = poly_set_len -1; i >= 0; i--)
 		{
 		    res = find_intersection(camera_ray, poly_set[i], &answ);
 		    if (res)
@@ -103,18 +137,14 @@ int main(int argc, char **argv)
 		    if (x == WIDTH-1)
 			d3 = (vec3_ray) {c1, c2};
 		}
-		
-		/*if (res)
-		  {
-		  printf("[%03d/%03d] %f:%f:%f\n", x,y, answ.x, answ.y, answ.z);
-		  }*/
+	        
 	    }
 	}
 
 	if (debug_mode)
 	{
 
-	    sprintf(debug, "FPS: %d X: %2.1f Y: %2.1f Z: %2.1f YAW: %2.1f", fps, camera.x, camera.y, camera.z, camera.yaw);
+	    sprintf(debug, "FPS: %d X: %2.1f Y: %2.1f Z: %2.1f R: %2.1f", fps, camera.x, camera.y, camera.z, camera.yaw);
 	    frames++;
 	    if (last_sec < time(NULL))
 	    {
@@ -248,22 +278,7 @@ void keyboard(struct mfb_window *window, mfb_key key, mfb_key_mod mod, bool isPr
     }
 
     keyboard_buffer[key - 0x20] = isPressed;
+    last_moved = true;
 }
 
 
-void load_model(char *filename, poly **poly_set, int *poly_set_len)
-{
-    FILE *file = fopen(filename, "r");
-    int add_len;
-    if (file == NULL)
-    {
-	fprintf(stderr, "Unable to load model file %s\n", filename);
-	exit(1);
-    }
-    fread(&add_len, 1, sizeof(int), file);
-    *poly_set = realloc(*poly_set, sizeof(poly) * (*poly_set_len + add_len + 1));
-    fread(*poly_set + *poly_set_len, add_len, sizeof(poly) * add_len, file);
-    *poly_set_len += add_len;
-    
-    fclose(file);
-}
