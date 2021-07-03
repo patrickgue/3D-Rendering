@@ -8,7 +8,7 @@ CFLAGS+=-g -I./vendor/minifb/include
 UNAME := $(shell uname)
 
 ifeq ($(UNAME), Linux)
-LDFLAGS+=-L./vendor/minifb/build -lminifb -lX11 -lGL
+LDFLAGS+=-L./vendor/minifb/build -lminifb -lX11 -lGL -lm
 endif
 ifeq ($(UNAME), Darwin)
 LDFLAGS+=-L./vendor/minifb/build -lminifb -ObjC -lObjC -framework Cocoa  -framework Metal -framework MetalKit

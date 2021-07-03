@@ -4,7 +4,7 @@
 #include <stdbool.h>
 #include <stdint.h>
 
-#define DTOR M_PI/180.0f
+#define DTOR 0.017453293f
 
 
 typedef struct s_vector3 vec3;

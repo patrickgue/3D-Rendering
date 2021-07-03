@@ -86,7 +86,7 @@ vec3 poly_center(poly polygon)
 
 vec3 vec3_rotate_y(vec3 vc, vec3 v, float deg)
 {
-    vec3 p;
+    vec3 p = v;
     p.y = vc.y + v.y;
     float s = sinf(deg * DTOR);
     float c = cosf(deg * DTOR);

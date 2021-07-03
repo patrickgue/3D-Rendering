@@ -99,23 +99,29 @@ int main(int argc, char **argv)
 		fx = sinf(camera.yaw * DTOR);
 		fy = cosf(camera.yaw * DTOR);
 
-		
-		c1 = vec3_rotate_y(vecd3_to_vec3(camera), vec3_add(
-				       vec3_add(
-					   vecd3_to_vec3(camera),
-					   (vec3) {0.0f,0.0f,d_min}),
-				       (vec3) {f_near * (x - (WIDTH/2)), 0, 0}
-				       ), camera.yaw);
+
+		c1 = vec3_rotate_y(
+		    vecd3_to_vec3(camera),
+		    vec3_add(
+			vec3_add(
+			    vecd3_to_vec3(camera),
+			    (vec3) {0.0f,0.0f,d_min}),
+			(vec3) {f_near * (x - (WIDTH/2)), 0.0f, 0.0f}),
+		    camera.yaw);
+
 		c1.y = (f_near * -1 * (y - (HEIGHT/2)));
-		
-		c2 = vec3_rotate_y(vecd3_to_vec3(camera), vec3_add(
-				       vec3_add(
-					   vecd3_to_vec3(camera), 
-					   (vec3) {0.0f,0.0f,d_max}),
-				       (vec3) {f_far * (x - (WIDTH/2)), 0, 0}
-				       ), camera.yaw);
+
+		c2 = vec3_rotate_y(
+		    vecd3_to_vec3(camera),
+		    vec3_add(
+			vec3_add(
+			    vecd3_to_vec3(camera), 
+			    (vec3) {0.0f,0.0f,d_max}),
+			(vec3) {f_far * (x - (WIDTH/2)), 0.0f, 0.0f}),
+		    camera.yaw);
+
 		c2.y = (f_far * -1 * (y - (HEIGHT/2)));
-		
+
 		camera_ray = (vec3_ray) {c1, c2};
 		buffer[(y * WIDTH) + x] = 0;
 	      
