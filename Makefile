@@ -1,7 +1,7 @@
 PROG=game
 SRCS=game.c vector.c text.c model.c
 OBJS=$(SRCS:.c=.o)
-MODELS=assets/square.bin assets/plane.bin assets/cube.bin
+MODELS=assets/square.bin assets/plane.bin assets/cube.bin assets/test.bin
 
 CFLAGS+=-g -I./vendor/minifb/include
 

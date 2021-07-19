@@ -4,6 +4,7 @@
 #include <math.h>
 #include <time.h>
 #include <string.h>
+#include <sys/time.h>
 
 #include <MiniFB.h>
 
@@ -45,7 +46,6 @@ int main(int argc, char **argv)
 	    debug_mode = true;
 	}
     }
-
     
     mfb_set_keyboard_callback(window, keyboard);
     memset(keyboard_buffer, 0, 0x60);
@@ -56,13 +56,17 @@ int main(int argc, char **argv)
 
     load_model("assets/square.bin", &poly_set, &poly_set_len);
     load_model("assets/plane.bin", &poly_set, &poly_set_len);
+    load_model("assets/test.bin", &poly_set, &poly_set_len);
     load_model("assets/cube.bin", &poly_set, &poly_set_len);
 
     poly_set_dist_list = malloc(sizeof(float) * poly_set_len);
   
     do
     {
-
+	poly_set[poly_set_len - 1].mov.yaw++;
+	if (poly_set[poly_set_len - 1].mov.yaw == 360)
+	    poly_set[poly_set_len - 1].mov.yaw = 0;
+	
 	if (last_moved)
 	{
 	    for (i = 0; i < poly_set_len; i++)
@@ -74,7 +78,7 @@ int main(int argc, char **argv)
 	    do
 	    {
 		swapped = false;
-		for (i = 1; i <  n - 1; i++)
+		for (i = 1; i < n; i++)
 		{
 		    if (poly_set_dist_list[i - 1] > poly_set_dist_list[i])
 		    {
@@ -98,7 +102,6 @@ int main(int argc, char **argv)
 	    {
 		fx = sinf(camera.yaw * DTOR);
 		fy = cosf(camera.yaw * DTOR);
-
 
 		c1 = vec3_rotate_y(
 		    vecd3_to_vec3(camera),
@@ -127,7 +130,7 @@ int main(int argc, char **argv)
 	      
 		for (i = poly_set_len -1; i >= 0; i--)
 		{
-		    res = find_intersection(camera_ray, poly_set[i], &answ);
+		    res = find_intersection(camera_ray, poly_transform(poly_set[i]), &answ);
 		    if (res)
 		    {
 			buffer[(y * WIDTH) + x] = poly_set[i].color;
@@ -143,7 +146,6 @@ int main(int argc, char **argv)
 		    if (x == WIDTH-1)
 			d3 = (vec3_ray) {c1, c2};
 		}
-	        
 	    }
 	}
 
@@ -235,7 +237,6 @@ int main(int argc, char **argv)
 	    break;
 	}
     } while(mfb_wait_sync(window));
-
     return 0;
 }
 
@@ -286,5 +287,3 @@ void keyboard(struct mfb_window *window, mfb_key key, mfb_key_mod mod, bool isPr
     keyboard_buffer[key - 0x20] = isPressed;
     last_moved = true;
 }
-
-

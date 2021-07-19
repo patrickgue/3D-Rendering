@@ -68,6 +68,7 @@ int main(int argc, char **argv)
 		polygons[polygons_count].b = vec_buff[1];
 		polygons[polygons_count].c = vec_buff[2];
 		polygons[polygons_count].color = strtol(line_buffer, NULL, 16);
+		polygons[polygons_count].mov = (vecd3) {0,0,0,0,0,0};
 		polygons_count++;
 		vec_buff_index = 0;
 	    }

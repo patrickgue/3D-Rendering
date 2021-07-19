@@ -6,6 +6,12 @@
 
 #define DTOR 0.017453293f
 
+#define vecd3_to_vec3(v) ((vec3) {v.x, v.y, v.z})
+#define vec3_to_vecd3(v) ((vecd3) {v.x, v.y, v.z,0,0,0})
+#define m_vec3_sub(a,b) ((vec3) {a.x-b.x, a.y-b.y, a.z-b.z})
+#define m_vec3_add(a,b) ((vec3) {a.x+b.x, a.y+b.y, a.z+b.z})
+#define m_vec3_crossproduct(A,B) ((vec3) {A.y*B.z-A.z*B.y, A.z*B.x-A.x*B.z, A.x*B.y-A.y*B.x})
+#define m_vec3_dotproduct(a,b) ((a.x * b.x) + (a.y * b.y) + (a.z * b.z))
 
 typedef struct s_vector3 vec3;
 typedef struct s_vector_dir3 vecd3;
@@ -35,6 +41,7 @@ struct s_polygon
     vec3 a, b, c;
     uint32_t color;
     bool render;
+    vecd3 mov;
 };
 
 struct s_vector2
@@ -57,10 +64,11 @@ vec3 vec3_sum(vec3,vec3);
 vec3 vec3_div(vec3,vec3);
 float vec3_len(vec3);
 vec3 vec3_rotate_y(vec3 c, vec3 v, float deg);
-vec3 vecd3_to_vec3(vecd3 v);
 vec3 poly_center(poly);
 vec3 vec3_abs(vec3);
 float vec3_distance(vec3, vec3);
+
+poly poly_transform(poly);
 
 vec2 vec2_sub(vec2, vec2);
 vec2 vec2_cpy(vec2);
