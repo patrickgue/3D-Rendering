@@ -7,6 +7,20 @@
 
 typedef struct s_view_props view_props;
 typedef enum e_app_mode app_mode;
+typedef enum e_app_info app_info;
+
+static char help[8][32] = {
+    "[HELP]",
+    "",
+    "[General]",
+    "  Tab      Select view direction",
+    "[View Mode]",
+    "  W/A/S/D  Move view",
+    "  Z/X      Zoom",
+    "  Q/E      Select polygon"
+};
+
+static int help_len = 8;
 
 struct s_view_props
 {
@@ -19,6 +33,12 @@ enum e_app_mode
 {
     MODE_VIEW,
     MODE_EDIT
+};
+
+enum e_app_info
+{
+    HELP,
+    INFO
 };
 
 

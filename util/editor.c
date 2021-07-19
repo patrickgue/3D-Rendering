@@ -21,6 +21,7 @@ static uint32_t *buffer;
 poly *poly_set;
 int poly_set_len, current_window = 0, poly_sel = 0;
 app_mode mode = MODE_VIEW;
+app_info info = HELP;
 
 view_props
     front = {WIDTH/4, HEIGHT/4, 10},
@@ -49,7 +50,7 @@ int main(int argc, char **argv)
     if (!window)
 	return 1;
 
-    load_model("./assets/square.bin", &poly_set, &poly_set_len);
+    load_model("./assets/test.bin", &poly_set, &poly_set_len);
 
     do
     {
@@ -63,10 +64,9 @@ int main(int argc, char **argv)
 		    {front.x + front.zoom*poly_set[i].b.x + front_offset.x, (front.y + front.zoom*poly_set[i].b.y)},
 		    {front.x + front.zoom*poly_set[i].c.x + front_offset.x, (front.y + front.zoom*poly_set[i].c.y)},
 		};
-
-	    draw_line(poly_front.a, poly_front.b, i == poly_sel ? 0x00ffff00 : 0x00ff0000, front_offset, frame);
-	    draw_line(poly_front.b, poly_front.c, i == poly_sel ? 0x00ffff00 : 0x00ff0000, front_offset, frame);
-	    draw_line(poly_front.c, poly_front.a, i == poly_sel ? 0x00ffff00 : 0x00ff0000, front_offset, frame);
+	    draw_line(poly_front.a, poly_front.b, i == poly_sel ? 0x00ffff00 : poly_set[i].color, front_offset, frame);
+	    draw_line(poly_front.b, poly_front.c, i == poly_sel ? 0x00ffff00 : poly_set[i].color, front_offset, frame);
+	    draw_line(poly_front.c, poly_front.a, i == poly_sel ? 0x00ffff00 : poly_set[i].color, front_offset, frame);
 
 	    poly_side = (poly2)
 		{
@@ -74,10 +74,9 @@ int main(int argc, char **argv)
 		    {side.x + side.zoom*poly_set[i].b.z,(side_offset.y + side.y + side.zoom*poly_set[i].b.y)},
 		    {side.x + side.zoom*poly_set[i].c.z,(side_offset.y + side.y + side.zoom*poly_set[i].c.y)}
 		};
-
-	    draw_line(poly_side.a, poly_side.b, i == poly_sel ? 0x00ffff00 : 0x00008800, side_offset, frame);
-	    draw_line(poly_side.b, poly_side.c, i == poly_sel ? 0x00ffff00 : 0x00008800, side_offset, frame);
-	    draw_line(poly_side.c, poly_side.a, i == poly_sel ? 0x00ffff00 : 0x00008800, side_offset, frame);
+	    draw_line(poly_side.a, poly_side.b, i == poly_sel ? 0x00ffff00 : poly_set[i].color, side_offset, frame);
+	    draw_line(poly_side.b, poly_side.c, i == poly_sel ? 0x00ffff00 : poly_set[i].color, side_offset, frame);
+	    draw_line(poly_side.c, poly_side.a, i == poly_sel ? 0x00ffff00 : poly_set[i].color, side_offset, frame);
 
 	    poly_top = (poly2)
 		{
@@ -85,10 +84,9 @@ int main(int argc, char **argv)
 		    {top.x + top.zoom*poly_set[i].b.x + top_offset.x, top_offset.y + top.y + top.zoom*poly_set[i].b.z},
 		    {top.x + top.zoom*poly_set[i].c.x + top_offset.x, top_offset.y + top.y + top.zoom*poly_set[i].c.z}
 		};
-
-	    draw_line(poly_top.a, poly_top.b, i == poly_sel ? 0x00ffff00 : 0x004444ff, top_offset, frame);
-	    draw_line(poly_top.b, poly_top.c, i == poly_sel ? 0x00ffff00 : 0x004444ff, top_offset, frame);
-	    draw_line(poly_top.c, poly_top.a, i == poly_sel ? 0x00ffff00 : 0x004444ff, top_offset, frame);
+	    draw_line(poly_top.a, poly_top.b, i == poly_sel ? 0x00ffff00 : poly_set[i].color, top_offset, frame);
+	    draw_line(poly_top.b, poly_top.c, i == poly_sel ? 0x00ffff00 : poly_set[i].color, top_offset, frame);
+	    draw_line(poly_top.c, poly_top.a, i == poly_sel ? 0x00ffff00 : poly_set[i].color, top_offset, frame);
 
 	}
 
@@ -110,8 +108,13 @@ int main(int argc, char **argv)
 	draw_text(top_offset.x, top_offset.y + 2, current_window == 2 ? "[T]" : " T ");
 
 	draw_text(0,HEIGHT - 10, status);
-	draw_text(0,2,"[HELP]");
-
+	if (info == HELP)
+	{
+	    for (i = 0; i < help_len; i++)
+	    {
+		draw_text(0, i * 10 + 2, help[i]);
+	    }
+	}
 	
 	if (state < 0) {
 	    window = NULL;
@@ -120,7 +123,6 @@ int main(int argc, char **argv)
     } while(mfb_wait_sync(window));
     return 0;
 }
-
 
 void draw_text(int x, int y, char *text)
 {
@@ -208,6 +210,10 @@ void keyboard(struct mfb_window *window, mfb_key key, mfb_key_mod mod, bool is_p
 		poly_sel = 0;
 
 	}
+
+	if (key == KB_KEY_H)
+	    info = HELP;
+
 
 	if (mode == MODE_VIEW)
 	{
