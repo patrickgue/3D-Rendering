@@ -149,3 +149,15 @@ bool find_intersection(vec3_ray ray, poly polygon, vec3 *answer)
     else // This means that there is a line intersection but not a ray intersection.
         return false;
 }
+
+
+vec2 vec2_sub(vec2 a, vec2 b)
+{
+    return (vec2) {a.x - b.x, a.y - b.y};
+}
+
+
+vec2 vec2_cpy(vec2 a)
+{
+    return (vec2) {a.x, a.y};
+}

@@ -3,10 +3,10 @@ MODEL_SRCS=model.c
 MODEL_OBJS=$(MODEL_SRCS:.c=.o)
 
 EDITOR_PROG=editor
-EDITOR_SRCS=editor.c ../model.c ../text.c
+EDITOR_SRCS=editor.c ../model.c ../text.c ../vector.c
 EDITOR_OBJS=$(EDITOR_SRCS:.c=.o)
 
-CFLAGS+=-I../vendor/minifb/include
+CFLAGS+=-I../vendor/minifb/include -g
 
 
 UNAME := $(shell uname)
