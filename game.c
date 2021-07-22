@@ -4,7 +4,6 @@
 #include <math.h>
 #include <time.h>
 #include <string.h>
-#include <sys/time.h>
 
 #include <MiniFB.h>
 
@@ -60,12 +59,17 @@ int main(int argc, char **argv)
     load_model("assets/cube.bin", &poly_set, &poly_set_len);
 
     poly_set_dist_list = malloc(sizeof(float) * poly_set_len);
+
+    /*poly_set[5].mov.y -= 0.2;
+    poly_set[6].mov.y -= 0.2;
+    poly_set[7].mov.y -= 0.2;
+    poly_set[8].mov.y -= 0.2;*/
   
     do
     {
-	poly_set[poly_set_len - 1].mov.yaw++;
-	if (poly_set[poly_set_len - 1].mov.yaw == 360)
-	    poly_set[poly_set_len - 1].mov.yaw = 0;
+	/*poly_set[1].mov.yaw++;
+	if (poly_set[1].mov.yaw == 360)
+	poly_set[1].mov.yaw = 0;*/
 	
 	if (last_moved)
 	{
@@ -112,7 +116,7 @@ int main(int argc, char **argv)
 			(vec3) {f_near * (x - (WIDTH/2)), 0.0f, 0.0f}),
 		    camera.yaw);
 
-		c1.y = (f_near * -1 * (y - (HEIGHT/2)));
+		c1.y = camera.y + (f_near * -1 * (y - (HEIGHT/2)));
 
 		c2 = vec3_rotate_y(
 		    vecd3_to_vec3(camera),
@@ -123,14 +127,14 @@ int main(int argc, char **argv)
 			(vec3) {f_far * (x - (WIDTH/2)), 0.0f, 0.0f}),
 		    camera.yaw);
 
-		c2.y = (f_far * -1 * (y - (HEIGHT/2)));
+		c2.y = camera.y + (f_far * -1 * (y - (HEIGHT/2)));
 
 		camera_ray = (vec3_ray) {c1, c2};
 		buffer[(y * WIDTH) + x] = 0;
 	      
 		for (i = poly_set_len -1; i >= 0; i--)
 		{
-		    res = find_intersection(camera_ray, poly_transform(poly_set[i]), &answ);
+		    res = find_intersection(camera_ray, poly_set[i], &answ);
 		    if (res)
 		    {
 			buffer[(y * WIDTH) + x] = poly_set[i].color;
@@ -151,7 +155,6 @@ int main(int argc, char **argv)
 
 	if (debug_mode)
 	{
-
 	    sprintf(debug, "FPS: %d X: %2.1f Y: %2.1f Z: %2.1f R: %2.1f", fps, camera.x, camera.y, camera.z, camera.yaw);
 	    frames++;
 	    if (last_sec < time(NULL))
@@ -271,6 +274,15 @@ void process_input()
     {
 	camera.x += cosf(camera.yaw * DTOR)/4.0f;
 	camera.z += sinf(camera.yaw * DTOR)/4.0f;
+    }
+
+    if (keyboard_buffer['Z' - 0x20] == true)
+    {
+	camera.y -= 0.5;
+    }
+    else if (keyboard_buffer['X' - 0x20] == true)
+    {
+	camera.y += 0.5;
     }
 }
 

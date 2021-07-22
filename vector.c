@@ -3,17 +3,17 @@
 
 #include "vector.h"
 
-vec3 vec3_crossproduct(vec3 A, vec3 B)
+inline vec3 vec3_crossproduct(vec3 A, vec3 B)
 {
     return (vec3) {A.y*B.z-A.z*B.y, A.z*B.x-A.x*B.z, A.x*B.y-A.y*B.x};
 }
 
-float vec3_dotproduct(vec3 a, vec3 b)
+inline float vec3_dotproduct(vec3 a, vec3 b)
 {
     return (a.x * b.x) + (a.y * b.y) + (a.z * b.z);
 }
 
-vec3 vec3_add(vec3 a, vec3 b)
+inline vec3 vec3_add(vec3 a, vec3 b)
 {
     return (vec3) {
 	a.x + b.x,
@@ -22,7 +22,7 @@ vec3 vec3_add(vec3 a, vec3 b)
     };
 }
 
-vec3 vec3_sub(vec3 a, vec3 b)
+inline vec3 vec3_sub(vec3 a, vec3 b)
 {
     vec3 p;
     p.x = a.x - b.x;
@@ -31,7 +31,7 @@ vec3 vec3_sub(vec3 a, vec3 b)
     return p;
 }
 
-vec3 vec3_sum(vec3 a, vec3 b)
+inline vec3 vec3_sum(vec3 a, vec3 b)
 {
     vec3 p;
     p.x = a.x * b.x;
@@ -40,7 +40,7 @@ vec3 vec3_sum(vec3 a, vec3 b)
     return p;
 }
 
-vec3 vec3_dic(vec3 a, vec3 b)
+inline vec3 vec3_div(vec3 a, vec3 b)
 {
     vec3 p;
     p.x = a.x / b.x;
@@ -50,7 +50,7 @@ vec3 vec3_dic(vec3 a, vec3 b)
 }
 
 
-float vec3_len(vec3 a)
+inline float vec3_len(vec3 a)
 {
     return cbrtf( (a.x*a.x) + (a.y*a.y) + (a.z*a.z) );
 }
@@ -61,7 +61,7 @@ vec3 vec3_mul_scalar(float a, vec3 B)
     return (vec3) {a*B.x, a*B.y, a*B.z};
 }
 
-vec3 vec3_abs(vec3 v)
+inline vec3 vec3_abs(vec3 v)
 {
     return (vec3) {
 	fabs(v.x),
@@ -70,12 +70,12 @@ vec3 vec3_abs(vec3 v)
     };
 }
 
-float vec3_distance(vec3 a, vec3 b)
+inline float vec3_distance(vec3 a, vec3 b)
 {
     return vec3_len(vec3_abs(vec3_sub(a,b)));
 }
 
-vec3 poly_center(poly polygon)
+inline vec3 poly_center(poly polygon)
 {
     return (vec3) {
 	(polygon.a.x + polygon.b.x + polygon.c.x) / 3.0f,
@@ -84,7 +84,7 @@ vec3 poly_center(poly polygon)
     };
 }
 
-vec3 vec3_rotate_y(vec3 vc, vec3 v, float deg)
+inline vec3 vec3_rotate_y(vec3 vc, vec3 v, float deg)
 {
     vec3 p = v;
     p.y = vc.y + v.y;
@@ -110,7 +110,7 @@ vec3 vec3_rotate_y(vec3 vc, vec3 v, float deg)
     return (vec3) {v.x, v.y, v.z};
     } */
 
-poly poly_transform(poly a)
+inline poly poly_transform(poly a)
 {
     vec3 center;
     poly p = a;
@@ -119,7 +119,7 @@ poly poly_transform(poly a)
     p.c = vec3_add(p.c, vecd3_to_vec3(p.mov));
 
     center = poly_center(p);
-    if (p.mov.yaw > 0)
+    if (p.mov.yaw != 0)
     {
 	p.a = vec3_rotate_y(p.a, center, p.mov.yaw);
 	p.b = vec3_rotate_y(p.b, center, p.mov.yaw);
@@ -128,7 +128,7 @@ poly poly_transform(poly a)
     return p;
 }
 
-bool find_intersection(vec3_ray ray, poly polygon, vec3 *answer)
+inline bool find_intersection(vec3_ray ray, poly polygon, vec3 *answer)
 {
     const float EPSILON = 0.0001;
 
@@ -141,15 +141,15 @@ bool find_intersection(vec3_ray ray, poly polygon, vec3 *answer)
     vec3 edge1, edge2, h, s, q;
     float a,f,u,v;
     
-    edge1 = m_vec3_sub(vertex1, vertex0);
-    edge2 = m_vec3_sub(vertex2, vertex0);
+    edge1 = vec3_sub(vertex1, vertex0);
+    edge2 = vec3_sub(vertex2, vertex0);
 
     h = vec3_crossproduct(rayVector, edge2);
     a = vec3_dotproduct(edge1, h);
     if (a > -EPSILON && a < EPSILON)
         return false;    // This ray is parallel to this triangle.
     f = 1.0/a;
-    s = m_vec3_sub(rayOrigin, vertex0);
+    s = vec3_sub(rayOrigin, vertex0);
     u = f * vec3_dotproduct(s,h);
     if (u < 0.0 || u > 1.0)
         return false;
@@ -161,7 +161,7 @@ bool find_intersection(vec3_ray ray, poly polygon, vec3 *answer)
     float t = f * vec3_dotproduct(edge2, q);
     if (t > EPSILON) // ray intersection
     {
-        *answer = m_vec3_add(rayOrigin, vec3_mul_scalar(t, rayVector));
+        *answer = vec3_add(rayOrigin, vec3_mul_scalar(t, rayVector));
         return true;
     }
     else // This means that there is a line intersection but not a ray intersection.
