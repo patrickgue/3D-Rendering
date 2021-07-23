@@ -84,6 +84,22 @@ inline vec3 poly_center(poly polygon)
     };
 }
 
+vec3 poly_set_center(poly_set set)
+{
+    vec3 center = {0.0f, 0.0f, 0.0f}, tmp;
+    int i;
+    for (i = 0; i < set.polygons_count; i++)
+    {
+	tmp = poly_center(set.polygons[0]);
+	center = vec3_add(center, tmp);
+    }
+    return (vec3) {
+	tmp.x / set.polygons_count,
+	tmp.y / set.polygons_count,
+	tmp.z / set.polygons_count
+    };
+}
+
 inline vec3 vec3_rotate_y(vec3 vc, vec3 v, float deg)
 {
     vec3 p = v;
@@ -110,22 +126,20 @@ inline vec3 vec3_rotate_y(vec3 vc, vec3 v, float deg)
     return (vec3) {v.x, v.y, v.z};
     } */
 
-inline poly poly_transform(poly a)
+poly poly_transform(poly a, vec3 center, vecd3 mod)
 {
     poly p = a;
     
-    /*vec3 center;
-    p.a = vec3_add(p.a, vecd3_to_vec3(p.mov));
-    p.b = vec3_add(p.b, vecd3_to_vec3(p.mov));
-    p.c = vec3_add(p.c, vecd3_to_vec3(p.mov));
+    p.a = vec3_add(p.a, vecd3_to_vec3(mod));
+    p.b = vec3_add(p.b, vecd3_to_vec3(mod));
+    p.c = vec3_add(p.c, vecd3_to_vec3(mod));
 
-    center = poly_center(p);
-    if (p.mov.yaw != 0)
+    if (mod.yaw != 0)
     {
-	p.a = vec3_rotate_y(p.a, center, p.mov.yaw);
-	p.b = vec3_rotate_y(p.b, center, p.mov.yaw);
-	p.c = vec3_rotate_y(p.c, center, p.mov.yaw);
-	}*/
+	p.a = vec3_rotate_y(p.a, center, mod.yaw);
+	p.b = vec3_rotate_y(p.b, center, mod.yaw);
+	p.c = vec3_rotate_y(p.c, center, mod.yaw);
+    }
     return p;
 }
 

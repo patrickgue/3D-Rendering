@@ -12,8 +12,8 @@
 #include "model.h"
 #include "game.h"
 
-#define WIDTH 320
-#define HEIGHT 200
+#define WIDTH 100
+#define HEIGHT 80
 
 uint32_t *buffer;
 poly *polygon_set;
@@ -23,8 +23,8 @@ bool keyboard_buffer[0x60], last_moved = true;
 
 int main(int argc, char **argv)
 {
-    int x, y, i, j, frames = 0, fps = 0, state;
-    vec3 answ, c1, c2, c1r, c2r;
+    int x, y, i, j, k, sets_len, frames = 0, fps = 0, state;
+    vec3 answ, c1, c2, c1r, c2r, set_center;
     vec3_ray camera_ray, d1, d2, d3;
     float tmp_dist;
     time_t last_sec = 0;
@@ -33,8 +33,8 @@ int main(int argc, char **argv)
     poly tmp;
 
     float d_max = 30.0f, d_min = 3.0f, f_near = 0.01f, f_far = 0.1f, fx, fy;
-    poly_set square, plane, test, cube;
-
+    poly_set square, plane, test, cube, *sets;
+  
     struct mfb_window *window = mfb_open_ex("my display", WIDTH, HEIGHT, WF_RESIZABLE);
     if (!window)
 	return 0;
@@ -56,36 +56,34 @@ int main(int argc, char **argv)
     load_model("assets/plane.bin", &plane);
     load_model("assets/test.bin", &test);
     load_model("assets/cube.bin", &cube);
+    sets_len = 4;
+    sets = malloc(sizeof(poly_set) * sets_len);
+    sets[0] = square;
+    sets[1] = plane;
+    sets[2] = test;
+    sets[3] = cube;
 
-    polygon_set_len = square.polygons_count + plane.polygons_count + test.polygons_count + cube.polygons_count;
+    for (i = 0; i < sets_len; i++)
+    {
+	polygon_set_len += sets[i].polygons_count;
+    }
     polygon_set = (poly*) malloc(sizeof(poly) * polygon_set_len);
 
     do
     {
+	sets[3].mov.yaw += 1;
+	
 	j = 0;
-	for (i = 0; i < square.polygons_count; i++)
+	for (i = 0; i < sets_len; i++)
 	{
-	    polygon_set[i + j] = square.polygons[i];
+	    set_center = poly_set_center(sets[i]);
+	    for (k = 0; k < sets[i].polygons_count; k++)
+	    {
+	       
+		polygon_set[k + j] = poly_transform(sets[i].polygons[k], set_center, sets[i].mov) ;
+	    }
+	    j += sets[i].polygons_count;
 	}
-	j += square.polygons_count;
-
-	for (i = 0; i < plane.polygons_count; i++)
-	{
-	    polygon_set[i + j] = plane.polygons[i];
-	}
-	j += plane.polygons_count;
-
-	for (i = 0; i < test.polygons_count; i++)
-	{
-	    polygon_set[i + j] = test.polygons[i];
-	}
-	j += test.polygons_count;
-
-	for (i = 0; i < cube.polygons_count; i++)
-	{
-	    polygon_set[i + j] = cube.polygons[i];
-	}
-	j += cube.polygons_count;
  
 	qsort((void*)polygon_set, polygon_set_len, sizeof(poly), distance_comparison);
         
