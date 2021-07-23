@@ -18,13 +18,12 @@
 uint32_t *buffer;
 poly *polygon_set;
 int polygon_set_len = 0;
-float *poly_set_dist_list;
 vecd3 camera = {0.0f,0.0f,0.0f,0.0f,0.0f,0.0f};
 bool keyboard_buffer[0x60], last_moved = true;
 
 int main(int argc, char **argv)
 {
-    int x, y, i, j, frames = 0, fps = 0, state, n;
+    int x, y, i, j, frames = 0, fps = 0, state;
     vec3 answ, c1, c2, c1r, c2r;
     vec3_ray camera_ray, d1, d2, d3;
     float tmp_dist;
@@ -61,13 +60,6 @@ int main(int argc, char **argv)
     polygon_set_len = square.polygons_count + plane.polygons_count + test.polygons_count + cube.polygons_count;
     polygon_set = (poly*) malloc(sizeof(poly) * polygon_set_len);
 
-    poly_set_dist_list = malloc(sizeof(float) * polygon_set_len);
-
-    /*poly_set[5].mov.y -= 0.2;
-    poly_set[6].mov.y -= 0.2;
-    poly_set[7].mov.y -= 0.2;
-    poly_set[8].mov.y -= 0.2;*/
-  
     do
     {
 	j = 0;
@@ -94,46 +86,9 @@ int main(int argc, char **argv)
 	    polygon_set[i + j] = cube.polygons[i];
 	}
 	j += cube.polygons_count;
+ 
+	qsort((void*)polygon_set, polygon_set_len, sizeof(poly), distance_comparison);
         
-	/*poly_set[1].mov.yaw++;
-	if (poly_set[1].mov.yaw == 360)
-	poly_set[1].mov.yaw = 0;*/
-	
-	if (last_moved)
-	{
-	    for (i = 0; i < polygon_set_len; i++)
-	    {
-		poly_set_dist_list[i] = vec3_distance(vecd3_to_vec3(camera), poly_center(polygon_set[i]));
-		printf("b %2d %f\n", i, poly_set_dist_list[i]);
-	    }
-	    
-	    n = polygon_set_len;
-	    do
-	    {
-		swapped = false;
-		for (i = 1; i < n; i++)
-		{
-		    if (poly_set_dist_list[i - 1] > poly_set_dist_list[i])
-		    {
-			tmp = polygon_set[i - 1];
-			tmp_dist = poly_set_dist_list[i - 1];
-			polygon_set[i - 1] = polygon_set[i];
-			poly_set_dist_list[i - 1] = poly_set_dist_list[i];
-			polygon_set[i] = tmp;
-			poly_set_dist_list[i] = tmp_dist;
-			swapped = true;
-		    }
-		}
-		n--;
-	    } while(!swapped && n >= 0);
-	    last_moved = false;
-
-	    for (i = 0; i < polygon_set_len; i++)
-	    {
-		printf("a %2d %f\n", i, poly_set_dist_list[i]);
-	    }
-	}
-	
 	for (x = 0; x < WIDTH; x++)
 	{
 	    for (y = 0; y < HEIGHT; y++)
@@ -332,4 +287,14 @@ void keyboard(struct mfb_window *window, mfb_key key, mfb_key_mod mod, bool isPr
 
     keyboard_buffer[key - 0x20] = isPressed;
     last_moved = true;
+}
+
+
+int distance_comparison(const void *a, const void *b)
+{
+    vec3 va = *(vec3*) a;
+    vec3 vb = *(vec3*) b;
+    /* int conversion floors float values, therefore, if not scaled up, sorting
+       polygons near to each other won't work properly. */
+    return (int) (100.0f * (vec3_distance(vecd3_to_vec3(camera), va) - vec3_distance(vecd3_to_vec3(camera), vb)));
 }

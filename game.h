@@ -10,5 +10,6 @@ typedef unsigned char byte;
 
 void keyboard(struct mfb_window *window, mfb_key key, mfb_key_mod mod, bool isPressed);
 void process_input();
+int distance_comparison(const void *, const void *);
 
 #endif
