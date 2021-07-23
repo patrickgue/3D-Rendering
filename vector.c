@@ -112,8 +112,9 @@ inline vec3 vec3_rotate_y(vec3 vc, vec3 v, float deg)
 
 inline poly poly_transform(poly a)
 {
-    vec3 center;
     poly p = a;
+    
+    /*vec3 center;
     p.a = vec3_add(p.a, vecd3_to_vec3(p.mov));
     p.b = vec3_add(p.b, vecd3_to_vec3(p.mov));
     p.c = vec3_add(p.c, vecd3_to_vec3(p.mov));
@@ -124,7 +125,7 @@ inline poly poly_transform(poly a)
 	p.a = vec3_rotate_y(p.a, center, p.mov.yaw);
 	p.b = vec3_rotate_y(p.b, center, p.mov.yaw);
 	p.c = vec3_rotate_y(p.c, center, p.mov.yaw);
-    }
+	}*/
     return p;
 }
 

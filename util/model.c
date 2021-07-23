@@ -13,7 +13,7 @@ int main(int argc, char **argv)
     char line_buffer[64], number_buffer[32], cbuf;
     int i, line_count = 0, polygons_count = 0, vec_buff_index = 0;
     poly *polygons = malloc(0);
-    vec3 vec_buff[3];
+    vecd3 vec_buff[3], mov = {0.0f,0.0f,0.0f,0.0f,0.0f,0.0f};
     bool debug_mode = false;
     
     
@@ -51,28 +51,36 @@ int main(int argc, char **argv)
 	if (cbuf == '\n' || cbuf == 0)
 	{
 	    line_count++;
+	    
 	    line_buffer[i-1] = 0;
 	    i = 0;
 	    if (debug_mode)
 	    {
 		printf("%2d: %s\n", line_count, line_buffer);
 	    }
-		
-	    if (vec_buff_index < 3)
+
+	    /* first line is relative position */
+	    if (line_count == 1 && line_buffer[0] == 'R')
 	    {
-		vec_buff[vec_buff_index++] = parse_vec3(line_buffer);
+		printf("%s\n", line_buffer);
+		mov = parse_vec3(line_buffer + 1);
 	    }
-	    else {
-		polygons = realloc(polygons, sizeof(poly) * (polygons_count + 1));
-		polygons[polygons_count].a = vec_buff[0];
-		polygons[polygons_count].b = vec_buff[1];
-		polygons[polygons_count].c = vec_buff[2];
-		polygons[polygons_count].color = strtol(line_buffer, NULL, 16);
-		polygons[polygons_count].mov = (vecd3) {0,0,0,0,0,0};
-		polygons_count++;
-		vec_buff_index = 0;
+	    else
+	    {
+		if (vec_buff_index < 3)
+		{
+		    vec_buff[vec_buff_index++] = parse_vec3(line_buffer);
+		}
+		else {
+		    polygons = realloc(polygons, sizeof(poly) * (polygons_count + 1));
+		    polygons[polygons_count].a = vecd3_to_vec3(vec_buff[0]);
+		    polygons[polygons_count].b = vecd3_to_vec3(vec_buff[1]);
+		    polygons[polygons_count].c = vecd3_to_vec3(vec_buff[2]);
+		    polygons[polygons_count].color = strtol(line_buffer, NULL, 16);
+		    polygons_count++;
+		    vec_buff_index = 0;
+		}
 	    }
-	    
 	}
 
 
@@ -89,8 +97,9 @@ int main(int argc, char **argv)
 	}
     }
 
-
+    fwrite("mdl", 3, sizeof(char), output_file);
     fwrite(&polygons_count, 1, sizeof(int), output_file);
+    fwrite(&mov, 1, sizeof(vecd3), output_file);
     fwrite(polygons, polygons_count, sizeof(poly), output_file);
 
     fclose(input_file);
@@ -106,11 +115,11 @@ void usage()
 }
 
 
-vec3 parse_vec3(char *line)
+vecd3 parse_vec3(char *line)
 {
     char num_buff[32];
     int i, v_ind = 0, num_ind = 0;
-    vec3 p;
+    vecd3 p;
     for (i = 0; i < strlen(line); i++)
     {
 	if (line[i] == ',')
@@ -124,6 +133,15 @@ vec3 parse_vec3(char *line)
 	    case 1:
 		p.y = atof(num_buff);
 		break;
+	    case 2:
+		p.z = atof(num_buff);
+		break;
+	    case 3:
+		p.pit = atof(num_buff);
+		break;
+	    case 4:
+		p.yaw = atof(num_buff);
+		break;
 	    }
 	    v_ind++;
 	    num_ind = 0;
@@ -134,6 +152,13 @@ vec3 parse_vec3(char *line)
 	}
     }
     num_buff[num_ind] = 0;
-    p.z = atof(num_buff);
+    if (num_ind == 6)
+    {
+	p.rol = atof(num_buff);
+    }
+    else
+    {
+	p.z = atof(num_buff);
+    }
     return p;
 }

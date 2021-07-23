@@ -3,6 +3,6 @@
 
 #include "vector.h"
 
-void load_model(char*, poly**, int*);
+void load_model(char*, poly_set*);
 
 #endif

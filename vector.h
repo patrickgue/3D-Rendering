@@ -15,6 +15,7 @@ typedef struct s_vector3_ray vec3_ray;
 typedef struct s_polygon poly;
 typedef struct s_vector2 vec2;
 typedef struct s_polygon2 poly2;
+typedef struct s_polygon_set poly_set;
 
 struct s_vector3
 {
@@ -37,6 +38,12 @@ struct s_polygon
     vec3 a, b, c;
     uint32_t color;
     bool render;
+};
+
+struct s_polygon_set
+{
+    poly *polygons;
+    int polygons_count;
     vecd3 mov;
 };
 

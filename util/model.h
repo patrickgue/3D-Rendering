@@ -4,6 +4,6 @@
 #include "../vector.h"
 
 void usage();
-vec3 parse_vec3(char *line);
+vecd3 parse_vec3(char *line);
 
 #endif

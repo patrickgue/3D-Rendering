@@ -16,15 +16,15 @@
 #define HEIGHT 200
 
 uint32_t *buffer;
-poly *poly_set;
-int poly_set_len = 0;
+poly *polygon_set;
+int polygon_set_len = 0;
 float *poly_set_dist_list;
 vecd3 camera = {0.0f,0.0f,0.0f,0.0f,0.0f,0.0f};
 bool keyboard_buffer[0x60], last_moved = true;
 
 int main(int argc, char **argv)
 {
-    int x, y, i, frames = 0, fps = 0, state, n;
+    int x, y, i, j, frames = 0, fps = 0, state, n;
     vec3 answ, c1, c2, c1r, c2r;
     vec3_ray camera_ray, d1, d2, d3;
     float tmp_dist;
@@ -33,7 +33,9 @@ int main(int argc, char **argv)
     bool debug_mode = false, swapped, res;
     poly tmp;
 
-    float d_max = 30.0f, d_min = 3.0f, f_near = 0.01f, f_far = 0.1f, fx, fy; 
+    float d_max = 30.0f, d_min = 3.0f, f_near = 0.01f, f_far = 0.1f, fx, fy;
+    poly_set square, plane, test, cube;
+
     struct mfb_window *window = mfb_open_ex("my display", WIDTH, HEIGHT, WF_RESIZABLE);
     if (!window)
 	return 0;
@@ -50,15 +52,16 @@ int main(int argc, char **argv)
     memset(keyboard_buffer, 0, 0x60);
 
     buffer = (uint32_t *) malloc(WIDTH * HEIGHT * 4);
-    poly_set = (poly*) malloc(0);
+    
+    load_model("assets/square.bin", &square);
+    load_model("assets/plane.bin", &plane);
+    load_model("assets/test.bin", &test);
+    load_model("assets/cube.bin", &cube);
 
+    polygon_set_len = square.polygons_count + plane.polygons_count + test.polygons_count + cube.polygons_count;
+    polygon_set = (poly*) malloc(sizeof(poly) * polygon_set_len);
 
-    load_model("assets/square.bin", &poly_set, &poly_set_len);
-    load_model("assets/plane.bin", &poly_set, &poly_set_len);
-    load_model("assets/test.bin", &poly_set, &poly_set_len);
-    load_model("assets/cube.bin", &poly_set, &poly_set_len);
-
-    poly_set_dist_list = malloc(sizeof(float) * poly_set_len);
+    poly_set_dist_list = malloc(sizeof(float) * polygon_set_len);
 
     /*poly_set[5].mov.y -= 0.2;
     poly_set[6].mov.y -= 0.2;
@@ -67,18 +70,44 @@ int main(int argc, char **argv)
   
     do
     {
+	j = 0;
+	for (i = 0; i < square.polygons_count; i++)
+	{
+	    polygon_set[i + j] = square.polygons[i];
+	}
+	j += square.polygons_count;
+
+	for (i = 0; i < plane.polygons_count; i++)
+	{
+	    polygon_set[i + j] = plane.polygons[i];
+	}
+	j += plane.polygons_count;
+
+	for (i = 0; i < test.polygons_count; i++)
+	{
+	    polygon_set[i + j] = test.polygons[i];
+	}
+	j += test.polygons_count;
+
+	for (i = 0; i < cube.polygons_count; i++)
+	{
+	    polygon_set[i + j] = cube.polygons[i];
+	}
+	j += cube.polygons_count;
+        
 	/*poly_set[1].mov.yaw++;
 	if (poly_set[1].mov.yaw == 360)
 	poly_set[1].mov.yaw = 0;*/
 	
 	if (last_moved)
 	{
-	    for (i = 0; i < poly_set_len; i++)
+	    for (i = 0; i < polygon_set_len; i++)
 	    {
-		poly_set_dist_list[i] = vec3_distance(vecd3_to_vec3(camera), poly_center(poly_set[i]));
+		poly_set_dist_list[i] = vec3_distance(vecd3_to_vec3(camera), poly_center(polygon_set[i]));
+		printf("b %2d %f\n", i, poly_set_dist_list[i]);
 	    }
 	    
-	    n = poly_set_len;
+	    n = polygon_set_len;
 	    do
 	    {
 		swapped = false;
@@ -86,11 +115,11 @@ int main(int argc, char **argv)
 		{
 		    if (poly_set_dist_list[i - 1] > poly_set_dist_list[i])
 		    {
-			tmp = poly_set[i - 1];
+			tmp = polygon_set[i - 1];
 			tmp_dist = poly_set_dist_list[i - 1];
-			poly_set[i - 1] = poly_set[i];
+			polygon_set[i - 1] = polygon_set[i];
 			poly_set_dist_list[i - 1] = poly_set_dist_list[i];
-			poly_set[i] = tmp;
+			polygon_set[i] = tmp;
 			poly_set_dist_list[i] = tmp_dist;
 			swapped = true;
 		    }
@@ -98,6 +127,11 @@ int main(int argc, char **argv)
 		n--;
 	    } while(!swapped && n >= 0);
 	    last_moved = false;
+
+	    for (i = 0; i < polygon_set_len; i++)
+	    {
+		printf("a %2d %f\n", i, poly_set_dist_list[i]);
+	    }
 	}
 	
 	for (x = 0; x < WIDTH; x++)
@@ -132,12 +166,12 @@ int main(int argc, char **argv)
 		camera_ray = (vec3_ray) {c1, c2};
 		buffer[(y * WIDTH) + x] = 0;
 	      
-		for (i = poly_set_len -1; i >= 0; i--)
+		for (i = polygon_set_len -1; i >= 0; i--)
 		{
-		    res = find_intersection(camera_ray, poly_set[i], &answ);
+		    res = find_intersection(camera_ray, polygon_set[i], &answ);
 		    if (res)
 		    {
-			buffer[(y * WIDTH) + x] = poly_set[i].color;
+			buffer[(y * WIDTH) + x] = polygon_set[i].color;
 		    }
 		}
 
@@ -214,19 +248,19 @@ int main(int argc, char **argv)
 	    buffer[((((int)d3.r2.z) + 40) * WIDTH) + ((int)d3.r2.x) + 40] = 0x000000ff;
 	    buffer[((((int)d3.r2.z) + 40) * WIDTH) + ((int)d3.r2.x) + 40] = 0x000000ff;
 
-	    for (i = 0; i < poly_set_len; i++)
+	    for (i = 0; i < polygon_set_len; i++)
 	    {
-		buffer[((((int)poly_set[i].a.z) + 40) * WIDTH) + ((int)poly_set[i].a.x) + 40] = 0x0000ff00;
-		buffer[((((int)poly_set[i].a.z) + 40) * WIDTH) + ((int)poly_set[i].a.x) + 40] = 0x0000ff00;
-		buffer[((((int)poly_set[i].a.z) + 40) * WIDTH) + ((int)poly_set[i].a.x) + 40] = 0x0000ff00;
+		buffer[((((int)polygon_set[i].a.z) + 40) * WIDTH) + ((int)polygon_set[i].a.x) + 40] = 0x0000ff00;
+		buffer[((((int)polygon_set[i].a.z) + 40) * WIDTH) + ((int)polygon_set[i].a.x) + 40] = 0x0000ff00;
+		buffer[((((int)polygon_set[i].a.z) + 40) * WIDTH) + ((int)polygon_set[i].a.x) + 40] = 0x0000ff00;
 
-		buffer[((((int)poly_set[i].b.z) + 40) * WIDTH) + ((int)poly_set[i].b.x) + 40] = 0x0000ff00;
-		buffer[((((int)poly_set[i].b.z) + 40) * WIDTH) + ((int)poly_set[i].b.x) + 40] = 0x0000ff00;
-		buffer[((((int)poly_set[i].b.z) + 40) * WIDTH) + ((int)poly_set[i].b.x) + 40] = 0x0000ff00;
+		buffer[((((int)polygon_set[i].b.z) + 40) * WIDTH) + ((int)polygon_set[i].b.x) + 40] = 0x0000ff00;
+		buffer[((((int)polygon_set[i].b.z) + 40) * WIDTH) + ((int)polygon_set[i].b.x) + 40] = 0x0000ff00;
+		buffer[((((int)polygon_set[i].b.z) + 40) * WIDTH) + ((int)polygon_set[i].b.x) + 40] = 0x0000ff00;
 
-		buffer[((((int)poly_set[i].c.z) + 40) * WIDTH) + ((int)poly_set[i].c.x) + 40] = 0x0000ff00;
-		buffer[((((int)poly_set[i].c.z) + 40) * WIDTH) + ((int)poly_set[i].c.x) + 40] = 0x0000ff00;
-		buffer[((((int)poly_set[i].c.z) + 40) * WIDTH) + ((int)poly_set[i].c.x) + 40] = 0x0000ff00;
+		buffer[((((int)polygon_set[i].c.z) + 40) * WIDTH) + ((int)polygon_set[i].c.x) + 40] = 0x0000ff00;
+		buffer[((((int)polygon_set[i].c.z) + 40) * WIDTH) + ((int)polygon_set[i].c.x) + 40] = 0x0000ff00;
+		buffer[((((int)polygon_set[i].c.z) + 40) * WIDTH) + ((int)polygon_set[i].c.x) + 40] = 0x0000ff00;
 	    }
 
 	}

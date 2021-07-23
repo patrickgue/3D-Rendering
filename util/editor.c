@@ -18,8 +18,8 @@
 
 static uint32_t *buffer;
 
-poly *poly_set;
-int poly_set_len, current_window = 0, poly_sel = 0;
+poly *polygon_set;
+int polygon_set_len, current_window = 0, poly_sel = 0;
 app_mode mode = MODE_VIEW;
 app_info info = HELP;
 
@@ -38,55 +38,58 @@ int main(int argc, char **argv)
     poly2 poly_front, poly_side, poly_top;
     char info_front[16], info_side[16], info_top[16];
     vec2 frame = {WIDTH/2, (HEIGHT-12)/2};
+    poly_set polysetobj;
     
     
     struct mfb_window *window = mfb_open_ex("editor", WIDTH, HEIGHT, WF_RESIZABLE);
     mfb_set_keyboard_callback(window, keyboard);
 
     char status[128] = "--STATUS--";
-    poly_set = malloc(0);
+    polygon_set = malloc(0);
 
     buffer = malloc(WIDTH * HEIGHT * sizeof(uint32_t));
     if (!window)
 	return 1;
 
-    load_model("./assets/test.bin", &poly_set, &poly_set_len);
+    load_model("./assets/test.bin", &polysetobj);
 
+    polygon_set = polysetobj.polygons;
+    polygon_set_len = polysetobj.polygons_count;
     do
     {
 	state = mfb_update_ex(window, buffer, WIDTH, HEIGHT);
 	memset(buffer, 0, WIDTH * HEIGHT * sizeof(uint32_t));
-	for (i = 0; i < poly_set_len; i++)
+	for (i = 0; i < polygon_set_len; i++)
 	{
 	    poly_front = (poly2)
 		{
-		    {front.x + front.zoom*poly_set[i].a.x + front_offset.x, (front.y + front.zoom*poly_set[i].a.y)},
-		    {front.x + front.zoom*poly_set[i].b.x + front_offset.x, (front.y + front.zoom*poly_set[i].b.y)},
-		    {front.x + front.zoom*poly_set[i].c.x + front_offset.x, (front.y + front.zoom*poly_set[i].c.y)},
+		    {front.x + front.zoom*polygon_set[i].a.x + front_offset.x, (front.y + front.zoom*polygon_set[i].a.y)},
+		    {front.x + front.zoom*polygon_set[i].b.x + front_offset.x, (front.y + front.zoom*polygon_set[i].b.y)},
+		    {front.x + front.zoom*polygon_set[i].c.x + front_offset.x, (front.y + front.zoom*polygon_set[i].c.y)},
 		};
-	    draw_line(poly_front.a, poly_front.b, i == poly_sel ? 0x00ffff00 : poly_set[i].color, front_offset, frame);
-	    draw_line(poly_front.b, poly_front.c, i == poly_sel ? 0x00ffff00 : poly_set[i].color, front_offset, frame);
-	    draw_line(poly_front.c, poly_front.a, i == poly_sel ? 0x00ffff00 : poly_set[i].color, front_offset, frame);
+	    draw_line(poly_front.a, poly_front.b, i == poly_sel ? 0x00ffff00 : polygon_set[i].color, front_offset, frame);
+	    draw_line(poly_front.b, poly_front.c, i == poly_sel ? 0x00ffff00 : polygon_set[i].color, front_offset, frame);
+	    draw_line(poly_front.c, poly_front.a, i == poly_sel ? 0x00ffff00 : polygon_set[i].color, front_offset, frame);
 
 	    poly_side = (poly2)
 		{
-		    {side.x + side.zoom*poly_set[i].a.z,(side_offset.y + side.y + side.zoom*poly_set[i].a.y)},
-		    {side.x + side.zoom*poly_set[i].b.z,(side_offset.y + side.y + side.zoom*poly_set[i].b.y)},
-		    {side.x + side.zoom*poly_set[i].c.z,(side_offset.y + side.y + side.zoom*poly_set[i].c.y)}
+		    {side.x + side.zoom*polygon_set[i].a.z,(side_offset.y + side.y + side.zoom*polygon_set[i].a.y)},
+		    {side.x + side.zoom*polygon_set[i].b.z,(side_offset.y + side.y + side.zoom*polygon_set[i].b.y)},
+		    {side.x + side.zoom*polygon_set[i].c.z,(side_offset.y + side.y + side.zoom*polygon_set[i].c.y)}
 		};
-	    draw_line(poly_side.a, poly_side.b, i == poly_sel ? 0x00ffff00 : poly_set[i].color, side_offset, frame);
-	    draw_line(poly_side.b, poly_side.c, i == poly_sel ? 0x00ffff00 : poly_set[i].color, side_offset, frame);
-	    draw_line(poly_side.c, poly_side.a, i == poly_sel ? 0x00ffff00 : poly_set[i].color, side_offset, frame);
+	    draw_line(poly_side.a, poly_side.b, i == poly_sel ? 0x00ffff00 : polygon_set[i].color, side_offset, frame);
+	    draw_line(poly_side.b, poly_side.c, i == poly_sel ? 0x00ffff00 : polygon_set[i].color, side_offset, frame);
+	    draw_line(poly_side.c, poly_side.a, i == poly_sel ? 0x00ffff00 : polygon_set[i].color, side_offset, frame);
 
 	    poly_top = (poly2)
 		{
-		    {top.x + top.zoom*poly_set[i].a.x + top_offset.x, top_offset.y + top.y + top.zoom*poly_set[i].a.z},
-		    {top.x + top.zoom*poly_set[i].b.x + top_offset.x, top_offset.y + top.y + top.zoom*poly_set[i].b.z},
-		    {top.x + top.zoom*poly_set[i].c.x + top_offset.x, top_offset.y + top.y + top.zoom*poly_set[i].c.z}
+		    {top.x + top.zoom*polygon_set[i].a.x + top_offset.x, top_offset.y + top.y + top.zoom*polygon_set[i].a.z},
+		    {top.x + top.zoom*polygon_set[i].b.x + top_offset.x, top_offset.y + top.y + top.zoom*polygon_set[i].b.z},
+		    {top.x + top.zoom*polygon_set[i].c.x + top_offset.x, top_offset.y + top.y + top.zoom*polygon_set[i].c.z}
 		};
-	    draw_line(poly_top.a, poly_top.b, i == poly_sel ? 0x00ffff00 : poly_set[i].color, top_offset, frame);
-	    draw_line(poly_top.b, poly_top.c, i == poly_sel ? 0x00ffff00 : poly_set[i].color, top_offset, frame);
-	    draw_line(poly_top.c, poly_top.a, i == poly_sel ? 0x00ffff00 : poly_set[i].color, top_offset, frame);
+	    draw_line(poly_top.a, poly_top.b, i == poly_sel ? 0x00ffff00 : polygon_set[i].color, top_offset, frame);
+	    draw_line(poly_top.b, poly_top.c, i == poly_sel ? 0x00ffff00 : polygon_set[i].color, top_offset, frame);
+	    draw_line(poly_top.c, poly_top.a, i == poly_sel ? 0x00ffff00 : polygon_set[i].color, top_offset, frame);
 
 	}
 
@@ -199,12 +202,12 @@ void keyboard(struct mfb_window *window, mfb_key key, mfb_key_mod mod, bool is_p
 	    if (poly_sel > 0)
 		poly_sel--;
 	    else
-		poly_sel = poly_set_len - 1;
+		poly_sel = polygon_set_len - 1;
 
 	}
 	else if (key == KB_KEY_E)
 	{
-	    if (poly_sel < poly_set_len - 1)
+	    if (poly_sel < polygon_set_len - 1)
 		poly_sel++;
 	    else
 		poly_sel = 0;
