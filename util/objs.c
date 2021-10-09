@@ -83,6 +83,9 @@ int main(int argc, char **argv)
 	fprintf(output_file, "%f,%f,%f\n", c.x, c.y, c.z);
 	fprintf(output_file, "00ffffff\n");
     }
+    fclose(input_file);
+    fclose(output_file);
+    free(obj);
     return 0;
 }
 
