@@ -65,9 +65,19 @@ int main(int argc, char **argv)
     for (i = 0; i < obj->polygons_count; i++)
     {
 	face f = obj->polygons[i];
-	vec3 a = obj->vectors[f.a],
-	     b = obj->vectors[f.d],
-	     c = obj->vectors[f.g];
+	vec3 a, b, c;
+	if (f.c == 0)
+	{
+	    a = obj->vectors[f.a];
+	    b = obj->vectors[f.d];
+	    c = obj->vectors[f.g];
+	}
+	else
+	{
+	    a = vec3_normalize(obj->vectors[f.a],obj->vector_normals[f.c]);
+	    b = vec3_normalize(obj->vectors[f.d],obj->vector_normals[f.f]);
+	    c = vec3_normalize(obj->vectors[f.g],obj->vector_normals[f.i]);
+	}
 	fprintf(output_file, "%f,%f,%f\n", a.x, a.y, a.z);
 	fprintf(output_file, "%f,%f,%f\n", b.x, b.y, b.z);
 	fprintf(output_file, "%f,%f,%f\n", c.x, c.y, c.z);

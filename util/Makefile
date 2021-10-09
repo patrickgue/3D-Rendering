@@ -7,7 +7,7 @@ EDITOR_SRCS=editor.c ../model.c ../text.c ../vector.c
 EDITOR_OBJS=$(EDITOR_SRCS:.c=.o)
 
 OBJS_PROG=objs
-OBJS_SRCS=objs.c
+OBJS_SRCS=objs.c ../vector.c
 OBJS_OBJS=$(OBJS_SRCS:.c=.o)
 
 CFLAGS+=-I../vendor/minifb/include -g

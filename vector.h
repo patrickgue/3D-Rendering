@@ -72,6 +72,7 @@ vec3 poly_center(poly);
 vec3 poly_set_center(poly_set);
 vec3 vec3_abs(vec3);
 float vec3_distance(vec3, vec3);
+vec3 vec3_normalize(vec3, vec3);
 
 poly poly_transform(poly, vec3, vecd3);
 

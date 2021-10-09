@@ -70,6 +70,16 @@ inline vec3 vec3_abs(vec3 v)
     };
 }
 
+inline vec3 vec3_normalize(vec3 v, vec3 n)
+{
+    float l = vec3_len(n);
+    return (vec3) {
+	v.x / l,
+	v.y / l,
+	v.z / l
+    };
+}
+
 inline float vec3_distance(vec3 a, vec3 b)
 {
     return vec3_len(vec3_abs(vec3_sub(a,b)));
