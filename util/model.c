@@ -11,35 +11,56 @@ int main(int argc, char **argv)
 {
     FILE *input_file, *output_file;
     char line_buffer[64], number_buffer[32], cbuf;
-    int i, line_count = 0, polygons_count = 0, vec_buff_index = 0;
+    int i, j, line_count = 0, polygons_count = 0, vec_buff_index = 0;
     poly *polygons = malloc(0);
     vecd3 vec_buff[3], mov = {0.0f,0.0f,0.0f,0.0f,0.0f,0.0f};
     bool debug_mode = false;
-    
-    
-    if (argc < 3)
+
+    if (argc < 2)
     {
 	usage();
 	exit(1);
     }
 
-    if (argc == 4 && strcmp(argv[3], "-d") == 0)
+    for (i = 1, j = 0; i < argc; i++)
     {
-	debug_mode = true;
+	if (strcmp(argv[i], "-d") == 0)
+	{
+	    debug_mode = true;
+	}
+	else
+	{
+	    if (j == 0)
+	    {
+		input_file = fopen(argv[i], "r");
+	    }
+	    else if (j == 1)
+	    {
+		output_file = fopen(argv[i], "w");
+	    }
+	    j++;
+	}
     }
 
-    input_file = fopen(argv[1], "r");
-    output_file = fopen(argv[2], "w");
+    if (j == 0)
+    {
+	input_file = stdin;
+    }
+    if (j < 2)
+    {
+	output_file = stdout;
+    }
+
     
     if (input_file == NULL)
     {
-	fprintf(stderr, "Error opening input file %s\n", argv[1]);
+	fprintf(stderr, "Error opening input file\n");
 	exit(1);
     }
 
     if (output_file == NULL)
     {
-	fprintf(stderr, "Error opening output file %s\n", argv[2]);
+	fprintf(stderr, "Error opening output file\n");
 	exit(1);
     }
 
