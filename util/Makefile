@@ -6,6 +6,10 @@ EDITOR_PROG=editor
 EDITOR_SRCS=editor.c ../model.c ../text.c ../vector.c
 EDITOR_OBJS=$(EDITOR_SRCS:.c=.o)
 
+OBJS_PROG=objs
+OBJS_SRCS=objs.c
+OBJS_OBJS=$(OBJS_SRCS:.c=.o)
+
 CFLAGS+=-I../vendor/minifb/include -g
 
 
@@ -26,6 +30,9 @@ all:$(MODEL_PROG)
 $(MODEL_PROG):$(MODEL_OBJS)
 	$(CC) $^ -o $@ $(LDFLAGS)
 
+$(OBJS_PROG):$(OBJS_OBJS)
+	$(CC) $^ -o $@ $(LDFLAGS)
+
 $(EDITOR_PROG):$(EDITOR_OBJS)
 	c++ $^ $(EDITOR_LDFLAGS) $(LDFLAGS) -o $@
 
@@ -33,4 +40,4 @@ $(EDITOR_PROG):$(EDITOR_OBJS)
 	$(CC) -c $^ -o $@ $(CFLAGS)
 
 clean:
-	rm -f $(MODEL_PROG) $(EDITOR_PROG) *.o
+	rm -f $(MODEL_PROG) $(EDITOR_PROG) $(OBJS_PROG) *.o

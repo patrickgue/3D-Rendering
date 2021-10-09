@@ -4,6 +4,7 @@ game
 util/*.o
 util/model
 util/editor
+util/objs
 
 assets/*.bin
 vendor

@@ -17,7 +17,7 @@ endif
 
 all:$(PROG)
 
-$(PROG):$(OBJS) models editor
+$(PROG):$(OBJS) models editor objs
 	c++ $(OBJS) $(LDFLAGS) -o $@
 
 %.o:%.c
@@ -43,3 +43,6 @@ model:
 
 editor:
 	make -C util/ editor
+
+objs:
+	make -C util/ objs
