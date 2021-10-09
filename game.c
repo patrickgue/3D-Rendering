@@ -12,12 +12,12 @@
 #include "model.h"
 #include "game.h"
 
-#define WIDTH 100
-#define HEIGHT 80
+#define DEFAULT_WIDTH 100
+#define DEFAULT_HEIGHT 80
 
 uint32_t *buffer;
 poly *polygon_set;
-int polygon_set_len = 0;
+int polygon_set_len = 0, WIDTH = 0, HEIGHT = 0;
 vecd3 camera = {0.0f,0.0f,0.0f,0.0f,0.0f,0.0f};
 bool keyboard_buffer[0x60], last_moved = true;
 
@@ -35,17 +35,35 @@ int main(int argc, char **argv)
     float d_max = 30.0f, d_min = 3.0f, f_near = 0.01f, f_far = 0.1f, fx, fy;
     poly_set square, plane, test, cube, *sets;
   
+    if (argc > 1)
+    {
+	for (i = 1; i < argc; i++)
+	{
+	    if (strcmp(argv[i], "-d") == 0)
+	    {
+		debug_mode = true;
+	    }
+	    if (strcmp(argv[i], "-w") == 0 && i < argc - 1)
+	    {
+		WIDTH = atoi(argv[i + 1]);
+	    }
+	    if (strcmp(argv[i], "-h") == 0 && i < argc - 1)
+	    {
+	        HEIGHT = atoi(argv[i + 1]);
+	    }
+	}
+    }
+
+    if (WIDTH == 0)
+	WIDTH = DEFAULT_WIDTH;
+
+    if (HEIGHT == 0)
+	HEIGHT = DEFAULT_HEIGHT;
+
     struct mfb_window *window = mfb_open_ex("my display", WIDTH, HEIGHT, WF_RESIZABLE);
     if (!window)
 	return 0;
 
-    if (argc > 1)
-    {
-	if (strcmp(argv[1], "-d") == 0)
-	{
-	    debug_mode = true;
-	}
-    }
     
     mfb_set_keyboard_callback(window, keyboard);
     memset(keyboard_buffer, 0, 0x60);
