@@ -61,6 +61,18 @@ int main(int argc, char **argv)
     {
 	printf("STATUS\n-----\nvectors     %d\ncoordinates %d\nnormals     %d\npolygons    %d\n", obj->vectors_count, obj->texture_coordinates_count, obj->vector_normals_count, obj->polygons_count);
     }
+
+    for (i = 0; i < obj->polygons_count; i++)
+    {
+	face f = obj->polygons[i];
+	vec3 a = obj->vectors[f.a],
+	     b = obj->vectors[f.d],
+	     c = obj->vectors[f.g];
+	fprintf(output_file, "%f,%f,%f\n", a.x, a.y, a.z);
+	fprintf(output_file, "%f,%f,%f\n", b.x, b.y, b.z);
+	fprintf(output_file, "%f,%f,%f\n", c.x, c.y, c.z);
+	fprintf(output_file, "00ffffff\n");
+    }
     return 0;
 }
 
@@ -184,17 +196,20 @@ void process_line(struct s_obj *obj, char *line)
 		obj->polygons[obj->polygons_count].h = (int) val[5];
 	    }
 	}
-	if (debug_mode) {printf("%d\n", j - 1);}
+	else
+	{
+	    if (debug_mode) {printf("%d\n", j - 1);}
 
-	obj->polygons[obj->polygons_count].a = (int) val[0];
-	obj->polygons[obj->polygons_count].b = (int) val[1];
-	obj->polygons[obj->polygons_count].c = (int) val[2];
-	obj->polygons[obj->polygons_count].d = (int) val[3];
-	obj->polygons[obj->polygons_count].e = (int) val[4];
-	obj->polygons[obj->polygons_count].f = (int) val[5];
-	obj->polygons[obj->polygons_count].g = (int) val[6];
-	obj->polygons[obj->polygons_count].h = (int) val[7];
-	obj->polygons[obj->polygons_count].i = (int) val[8];
+	    obj->polygons[obj->polygons_count].a = (int) val[0];
+	    obj->polygons[obj->polygons_count].b = (int) val[1];
+	    obj->polygons[obj->polygons_count].c = (int) val[2];
+	    obj->polygons[obj->polygons_count].d = (int) val[3];
+	    obj->polygons[obj->polygons_count].e = (int) val[4];
+	    obj->polygons[obj->polygons_count].f = (int) val[5];
+	    obj->polygons[obj->polygons_count].g = (int) val[6];
+	    obj->polygons[obj->polygons_count].h = (int) val[7];
+	    obj->polygons[obj->polygons_count].i = (int) val[8];
+	}
 	obj->polygons_count++;
     }
     
