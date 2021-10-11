@@ -3,7 +3,7 @@ SRCS=game.c vector.c text.c model.c
 OBJS=$(SRCS:.c=.o)
 MODELS=assets/square.bin assets/plane.bin assets/cube.bin assets/test.bin
 
-CFLAGS+=-I./vendor/minifb/include -O3
+CFLAGS+=-I./vendor/minifb/include -g
 
 UNAME := $(shell uname)
 

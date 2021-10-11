@@ -18,7 +18,7 @@
 uint32_t *buffer;
 poly *polygon_set;
 int polygon_set_len = 0, WIDTH = 0, HEIGHT = 0;
-vecd3 camera = {0.0f,0.0f,0.0f,0.0f,0.0f,0.0f};
+vecd3 camera = {0.0f,1.0f,-50.0f,0.0f,0.0f,0.0f};
 bool keyboard_buffer[0x60], last_moved = true;
 
 int main(int argc, char **argv)
@@ -33,7 +33,7 @@ int main(int argc, char **argv)
     poly tmp;
 
     float d_max = 30.0f, d_min = 3.0f, f_near = 0.01f, f_far = 0.1f, fx, fy;
-    poly_set square, plane, test, cube, *sets;
+    poly_set square, plane, test, cube, teapot, *sets;
   
     if (argc > 1)
     {
@@ -74,12 +74,14 @@ int main(int argc, char **argv)
     load_model("assets/plane.bin", &plane);
     load_model("assets/test.bin", &test);
     load_model("assets/cube.bin", &cube);
-    sets_len = 4;
+    load_model("test/teapot.bin", &teapot);
+    sets_len = 5;
     sets = malloc(sizeof(poly_set) * sets_len);
     sets[0] = square;
     sets[1] = plane;
     sets[2] = test;
     sets[3] = cube;
+    sets[4] = teapot;
 
     for (i = 0; i < sets_len; i++)
     {
